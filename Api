@@ -1,0 +1,13 @@
+import requests
+from PIL import Image  
+from io import BytesIO
+response = requests.get("https://dog.ceo/api/breeds/image/random")
+data = response.json()
+img_url = data['message']
+choice = int(input("Type 1 for the breed and 2 for an image: "))
+if choice == 1:
+    print("The breed is a", img_url.split('/')[4])
+elif choice == 2:
+    img_thing = requests.get(img_url)
+    img = Image.open(BytesIO(img_thing.content))
+    img.show()
