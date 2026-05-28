@@ -1,0 +1,117 @@
+from PIL import Image
+import os
+
+# ==========================================
+# PART 1: LOSSLESS COMPRESSION (RLE)
+# ==========================================
+def compress_lossless(image_path):
+    print("--- Starting Lossless Compression ---")
+    img = Image.open(image_path).convert('RGB')
+    
+    # getdata() flattens the image into a 1D list of (R,G,B) tuples
+    pixels = list(img.getdata()) 
+    print(pixels)
+    compressed_data = []
+    
+    # ---------------------------------------------------------
+    # TODO 1: Implement Run-Length Encoding (RLE)
+    # 1. Create variables to track the 'current_color' and 'count'.
+    # 2. Loop through every pixel in the 'pixels' list.
+    # 3. If the pixel matches the 'current_color', increase the count.
+    # 4. If it's different, append (current_color, count) to 'compressed_data',
+    #    then reset the color and count for the new pixel.
+    # ---------------------------------------------------------
+    # ---------------------------------------------------------
+    # TODO 1: Implement Run-Length Encoding (RLE)
+    # ---------------------------------------------------------
+    current_color = pixels[0]
+    count = 0
+    for pixel in pixels:
+        if pixel == current_color:
+            count += 1
+        else:
+            compressed_data.append((current_color, count))
+            current_color = pixel
+            count = 1
+
+
+    # >>> END YOUR CODE <<<
+    
+    # Let's calculate how much space we theoretically saved!
+    # A standard RGB pixel is 3 bytes (1 byte each for Red, Green, Blue).
+    original_bytes = len(pixels) * 3 
+    
+    # Our compressed list stores a color (3 bytes) + a count number (approx 1 byte) = 4 bytes per run
+    compressed_bytes = len(compressed_data) * 4 
+    
+    print(f"Original Image Size: {original_bytes} bytes")
+    print(f"Compressed Data Size: {compressed_bytes} bytes")
+    
+    if compressed_bytes < original_bytes:
+        print("Success! You saved space without losing a single pixel of data.")
+    else:
+        print("Your size increased! Why might RLE be bad for highly detailed photographs?")
+
+
+# ==========================================
+# PART 2: LOSSY COMPRESSION (Quantization)
+# ==========================================
+def compress_lossy(image_path, output_path, reduction_factor=32):
+    print("\n--- Starting Lossy Compression ---")
+    img = Image.open(image_path).convert('RGB')
+    
+    # load() creates a 2D map we can edit by [x, y] coordinates
+    pixel_map = img.load() 
+    width, height = img.size
+    
+    # ---------------------------------------------------------
+    # TODO 2: Implement Lossy Color Reduction
+    # 1. Use a nested loop to go through every x (width) and y (height).
+    # 2. Extract the current color: r, g, b = pixel_map[x, y]
+    # 3. Apply the 'reduction_factor' to r, g, and b. 
+    #    Hint: (r // factor) * factor will throw away precise details!
+    # 4. Assign the new color back: pixel_map[x, y] = (new_r, new_g, new_b)
+    # ---------------------------------------------------------
+    
+    # >>> YOUR CODE GOES HERE <<<
+    factor = 128
+    for x in range(width):
+        for y in range(height):
+            
+            # Get current RGB
+            r, g, b = pixel_map[x, y]
+            # Modify the RGB values here
+            r = (r // factor) * factor
+            g = (g // factor) * factor
+            b = (b // factor) * factor
+            
+            # Save them back to the map
+            pixel_map[x, y] = (r, g, b) 
+            pass # Remove 'pass' when you write your code
+            
+    # >>> END YOUR CODE <<<
+    
+    # Save the new degraded image
+    img.save(output_path)
+    
+    # Let's look at the actual file sizes on your hard drive
+    original_file_size = os.path.getsize(image_path)
+    lossy_file_size = os.path.getsize(output_path)
+    
+    print(f"Original File Size on Disk: {original_file_size} bytes")
+    print(f"Lossy File Size on Disk: {lossy_file_size} bytes")
+    print(f"Open '{output_path}' to see the data loss with your own eyes!")
+
+# ==========================================
+# RUNNING THE LAB
+# ==========================================
+if __name__ == '__main__':
+    # Make sure you have a file named 'test_image.jpg' in your folder!
+    my_image = 'Untitled.png'
+    output_image = 'lossy_output.jpg'
+    
+    try:
+        compress_lossless(my_image)
+        compress_lossy(my_image, output_image, reduction_factor=64)
+    except FileNotFoundError:
+        print(f"Error: Could not find {my_image}. Please save an image to your project folder!")
