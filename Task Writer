@@ -1,0 +1,42 @@
+"""
+Project Name: Task List
+Developer: William Holley
+Date: 2/18/2026
+Purpose: This app manages tasks by persisting data to tasks.txt.
+"""
+
+
+
+
+
+
+def get_task_input():
+
+
+    task = input("Enter a task: ")
+    return task if task else None
+
+
+
+
+def save_task(task):
+    try:
+        with open("tasks.txt", "a") as file:
+            file.write(task + "\n")
+        print(f"Task added.")
+    except IOError as e:
+        print(f"Error writing to file: {e}")
+
+
+
+
+def add_tasks():
+    while True:
+        task = get_task_input()
+        if task is None:
+            break
+        save_task(task)
+
+
+add_tasks()
+
